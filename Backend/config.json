@@ -6,6 +6,6 @@
 		"Port": "5430",
 		"DBName": "postgres",
 		"Username": "postgres",
-		"Password": "alistairfink"
+		"Password": "docker"
 	}
 }
