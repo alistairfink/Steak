@@ -14,6 +14,7 @@ CREATE EXTENSION "uuid-ossp"
 CREATE TABLE public.recipe
 (
     id uuid NOT NULL DEFAULT uuid_generate_v1(),
+    name text COLLATE pg_catalog."default" NOT NULL,
     "time" interval NOT NULL,
     type text COLLATE pg_catalog."default" NOT NULL,
     CONSTRAINT recipe_pkey PRIMARY KEY (id)

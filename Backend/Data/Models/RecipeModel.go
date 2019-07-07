@@ -5,8 +5,9 @@ import (
 )
 
 type RecipeModel struct {
-	tablename struct{}  `sql:"recipe"`
+	tableName struct{}  `sql:"recipe"`
 	Uuid      uuid.UUID `sql:"id, pk"`
+	Name      string    `sql:"name, notnull`
 	Time      string    `sql:"time, notnull"`
 	Type      string    `sql:"type, notnull"`
 }

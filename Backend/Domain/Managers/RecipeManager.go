@@ -40,6 +40,7 @@ func (this *RecipeManger) Get(uuid uuid.UUID) *Models.RecipeDomainModel {
 
 	return &Models.RecipeDomainModel{
 		Uuid:        uuid,
+		Name:        recipeModel.Name,
 		Time:        recipeModel.Time,
 		Type:        recipeModel.Type,
 		Pictures:    pictures,

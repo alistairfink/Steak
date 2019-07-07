@@ -6,6 +6,7 @@ import (
 
 type RecipeDomainModel struct {
 	Uuid        uuid.UUID
+	Name        string
 	Time        string
 	Type        string
 	Pictures    *[]PictureModel
@@ -17,6 +18,7 @@ type RecipeDomainModel struct {
 func (this *RecipeDomainModel) ToRecipeModel() *RecipeModel {
 	return &RecipeModel{
 		Uuid: this.Uuid,
+		Name: this.Name,
 		Time: this.Time,
 		Type: this.Type,
 	}
