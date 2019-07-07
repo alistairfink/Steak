@@ -1,16 +1,16 @@
 package Commands
 
 import (
+	"github.com/alistairfink/Steak/Backend/Data/Models"
 	"github.com/go-pg/pg"
 	"github.com/google/uuid"
-	"github.com/alistairfink/Steak/Backend/Data/Models"
 )
 
 type EquipmentCommand struct {
 	DB *pg.DB
 }
 
-func (this *EquipmentCommand) Get(uuid uuid.UUID) (*Models.EquipmentModel) { 
+func (this *EquipmentCommand) Get(uuid uuid.UUID) *Models.EquipmentModel {
 	if !this.Exists(uuid) {
 		return nil
 	}
@@ -24,7 +24,7 @@ func (this *EquipmentCommand) Get(uuid uuid.UUID) (*Models.EquipmentModel) {
 	return &models[0]
 }
 
-func (this *EquipmentCommand) GetAll() (*[]Models.EquipmentModel) {
+func (this *EquipmentCommand) GetAll() *[]Models.EquipmentModel {
 	var models []Models.EquipmentModel
 	err := this.DB.Model(&models).Select()
 	if err != nil {
@@ -34,7 +34,7 @@ func (this *EquipmentCommand) GetAll() (*[]Models.EquipmentModel) {
 	return &models
 }
 
-func (this *EquipmentCommand) GetByRecipeUuid(recipeUuid uuid.UUID) (*[]Models.EquipmentModel) {
+func (this *EquipmentCommand) GetByRecipeUuid(recipeUuid uuid.UUID) *[]Models.EquipmentModel {
 	var models []Models.EquipmentModel
 	err := this.DB.Model(&models).Where("recipe_id = ?", recipeUuid).Select()
 	if err != nil {
@@ -42,9 +42,9 @@ func (this *EquipmentCommand) GetByRecipeUuid(recipeUuid uuid.UUID) (*[]Models.E
 	}
 
 	return &models
-} 
+}
 
-func (this *EquipmentCommand) Upsert(model *Models.EquipmentModel) (*Models.EquipmentModel) {
+func (this *EquipmentCommand) Upsert(model *Models.EquipmentModel) *Models.EquipmentModel {
 	if this.Exists(model.Uuid) {
 		_, err := this.DB.Model(model).Where("id = ?", model.Uuid).Update(model)
 		if err != nil {

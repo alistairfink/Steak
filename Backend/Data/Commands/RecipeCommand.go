@@ -1,16 +1,16 @@
 package Commands
 
 import (
+	"github.com/alistairfink/Steak/Backend/Data/Models"
 	"github.com/go-pg/pg"
 	"github.com/google/uuid"
-	"github.com/alistairfink/Steak/Backend/Data/Models"
 )
 
 type RecipeCommand struct {
 	DB *pg.DB
 }
 
-func (this *RecipeCommand) Get(uuid uuid.UUID) (*Models.RecipeModel) { 
+func (this *RecipeCommand) Get(uuid uuid.UUID) *Models.RecipeModel {
 	if !this.Exists(uuid) {
 		return nil
 	}
@@ -24,7 +24,7 @@ func (this *RecipeCommand) Get(uuid uuid.UUID) (*Models.RecipeModel) {
 	return &models[0]
 }
 
-func (this *RecipeCommand) GetAll() (*[]Models.RecipeModel) {
+func (this *RecipeCommand) GetAll() *[]Models.RecipeModel {
 	var models []Models.RecipeModel
 	err := this.DB.Model(&models).Select()
 	if err != nil {
@@ -34,7 +34,7 @@ func (this *RecipeCommand) GetAll() (*[]Models.RecipeModel) {
 	return &models
 }
 
-func (this *RecipeCommand) Upsert(model *Models.RecipeModel) (*Models.RecipeModel) {
+func (this *RecipeCommand) Upsert(model *Models.RecipeModel) *Models.RecipeModel {
 	if this.Exists(model.Uuid) {
 		_, err := this.DB.Model(model).Where("id = ?", model.Uuid).Update(model)
 		if err != nil {

@@ -7,18 +7,18 @@ import (
 type Config struct {
 	Port string
 	ApiKey string
-	DB DB
+	DB     DB
 }
 
 type DB struct {
-	Address string
-	Port string
-	DBName string
+	Address  string
+	Port     string
+	DBName   string
 	Username string
 	Password string
 }
 
-func GetConfig(path string, configFileName string) (*Config) {
+func GetConfig(path string, configFileName string) *Config {
 	viper.SetConfigName(configFileName)
 	viper.AddConfigPath(path)
 	err := viper.ReadInConfig()

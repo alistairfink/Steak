@@ -1,16 +1,16 @@
 package Commands
 
 import (
+	"github.com/alistairfink/Steak/Backend/Data/Models"
 	"github.com/go-pg/pg"
 	"github.com/google/uuid"
-	"github.com/alistairfink/Steak/Backend/Data/Models"
 )
 
 type StepCommand struct {
 	DB *pg.DB
 }
 
-func (this *StepCommand) Get(uuid uuid.UUID) (*Models.StepModel) { 
+func (this *StepCommand) Get(uuid uuid.UUID) *Models.StepModel {
 	if !this.Exists(uuid) {
 		return nil
 	}
@@ -24,7 +24,7 @@ func (this *StepCommand) Get(uuid uuid.UUID) (*Models.StepModel) {
 	return &models[0]
 }
 
-func (this *StepCommand) GetAll() (*[]Models.StepModel) {
+func (this *StepCommand) GetAll() *[]Models.StepModel {
 	var models []Models.StepModel
 	err := this.DB.Model(&models).Select()
 	if err != nil {
@@ -34,7 +34,7 @@ func (this *StepCommand) GetAll() (*[]Models.StepModel) {
 	return &models
 }
 
-func (this *StepCommand) GetByRecipeUuid(recipeUuid uuid.UUID) (*[]Models.StepModel) {
+func (this *StepCommand) GetByRecipeUuid(recipeUuid uuid.UUID) *[]Models.StepModel {
 	var models []Models.StepModel
 	err := this.DB.Model(&models).Where("recipe_id = ?", recipeUuid).Select()
 	if err != nil {
@@ -42,9 +42,9 @@ func (this *StepCommand) GetByRecipeUuid(recipeUuid uuid.UUID) (*[]Models.StepMo
 	}
 
 	return &models
-} 
+}
 
-func (this *StepCommand) Upsert(model *Models.StepModel) (*Models.StepModel) {
+func (this *StepCommand) Upsert(model *Models.StepModel) *Models.StepModel {
 	if this.Exists(model.Uuid) {
 		_, err := this.DB.Model(model).Where("id = ?", model.Uuid).Update(model)
 		if err != nil {
