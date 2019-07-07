@@ -52,18 +52,18 @@ ALTER TABLE public.picture
     OWNER to postgres;
 
 
--- Table: public.ingredients
+-- Table: public.ingredient
 
--- DROP TABLE public.ingredients;
+-- DROP TABLE public.ingredient;
 
-CREATE TABLE public.ingredients
+CREATE TABLE public.ingredient
 (
     id uuid NOT NULL DEFAULT uuid_generate_v1(),
     recipe_id uuid NOT NULL,
     name text COLLATE pg_catalog."default" NOT NULL,
     quantity numeric NOT NULL,
-    CONSTRAINT ingredients_pkey PRIMARY KEY (id),
-    CONSTRAINT ingredients_recipe_id_fkey FOREIGN KEY (recipe_id)
+    CONSTRAINT ingredient_pkey PRIMARY KEY (id),
+    CONSTRAINT ingredient_recipe_id_fkey FOREIGN KEY (recipe_id)
         REFERENCES public.recipe (id) MATCH SIMPLE
         ON UPDATE NO ACTION
         ON DELETE NO ACTION
@@ -73,7 +73,7 @@ WITH (
 )
 TABLESPACE pg_default;
 
-ALTER TABLE public.ingredients
+ALTER TABLE public.ingredient
     OWNER to postgres;
 
 
