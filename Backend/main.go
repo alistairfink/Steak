@@ -38,7 +38,7 @@ func main() {
 	if err := chi.Walk(router, walkFunc); err != nil {
 		log.Panicf("Logging err: %s\n", err.Error())
 	}
-
+println("test")
 	log.Fatal(http.ListenAndServe(":" + config.Port, router))
 }
 

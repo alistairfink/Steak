@@ -1,0 +1,11 @@
+{
+	"Port": "41692",
+	"ApiKey": "9db15f75-0624-4ce7-9f52-3b5936643361",
+	"DB": {
+		"Address": "localhost",
+		"Port": "5430",
+		"DBName": "postgres",
+		"Username": "postgres",
+		"Password": "alistairfink"
+	}
+}

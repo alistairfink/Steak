@@ -1,0 +1,27 @@
+version: '3.2'
+
+services:
+  steak-db:
+    image: alistairfink/side_projects:steak_db
+    restart: always
+    ports:
+      - "5430:5432"
+    networks:
+      steak-network:
+        ipv4_address: 172.23.1.2
+    environment:
+      POSTGRES_PASSWORD: docker
+  steak-backend:
+    image: alistairfink/side_projects:steak_backend
+    restart: always
+    ports:
+      - "41690:41692"
+    networks:
+      - steak-network
+
+networks:
+  steak-network:
+    ipam:
+      driver: default
+      config:
+        - subnet: 172.23.0.0/16
