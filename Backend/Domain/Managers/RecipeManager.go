@@ -3,6 +3,7 @@ package Managers
 import (
 	"github.com/alistairfink/Steak/Backend/Data/Commands"
 	"github.com/alistairfink/Steak/Backend/Data/Models"
+	"github.com/alistairfink/Steak/Backend/Domain/Sort"
 	"github.com/go-pg/pg"
 	"github.com/google/uuid"
 )
@@ -24,7 +25,28 @@ func (this *RecipeManger) Init(db *pg.DB) {
 }
 
 func (this *RecipeManger) Get(uuid uuid.UUID) *Models.RecipeDomainModel {
-	panic("Not Implemented")
+	recipeModel := this.recipeCommand.Get(uuid)
+	if recipeModel == nil {
+		return nil
+	}
+
+	pictures := this.pictureCommand.GetByRecipeUuid(uuid)
+	ingredients := this.ingredientCommand.GetByRecipeUuid(uuid)
+	equipment := this.equipmentCommand.GetByRecipeUuid(uuid)
+	steps := this.stepCommand.GetByRecipeUuid(uuid)
+
+	Sort.SortPicturesBySortOrder(pictures)
+	Sort.SortStepsByStepNumber(steps)
+
+	return &Models.RecipeDomainModel{
+		Uuid:        uuid,
+		Time:        recipeModel.Time,
+		Type:        recipeModel.Type,
+		Pictures:    pictures,
+		Equipments:  equipment,
+		Ingredients: ingredients,
+		Steps:       steps,
+	}
 }
 
 func (this *RecipeManger) GetAll() *[]Models.RecipeModel {
