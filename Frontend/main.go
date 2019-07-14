@@ -70,6 +70,7 @@ func main() {
 func registerCallbacks() {
 	js.Global().Set("search", js.FuncOf(search))
 	js.Global().Set("clearSearch", js.FuncOf(clearSearch))
+	js.Global().Set("createRecipe", js.FuncOf(createRecipe))
 }
 
 func search(this js.Value, i []js.Value) interface{} {
@@ -138,17 +139,17 @@ func startup() {
 func createRecipeListItem(recipe *RecipeModel) *js.Value {
 	// Outter
 	li := js.Global().Get("document").Call("createElement", "li")
-	outerDiv := js.Global().Get("document").Call("createElement", "div")
-	outerDiv.Set("className", "recipe-list-item")
-	li.Call("appendChild", outerDiv)
-	title := js.Global().Get("document").Call("createElement", "h3")
-	title.Set("innerHTML", recipe.Name)
-	recipeType := js.Global().Get("document").Call("createElement", "p")
-	recipeType.Set("innerHTML", "Type: "+recipe.Type)
-	recipeTime := js.Global().Get("document").Call("createElement", "p")
-	recipeTime.Set("innerHTML", "Time: "+recipe.Time)
-	outerDiv.Call("appendChild", title)
-	outerDiv.Call("appendChild", recipeType)
-	outerDiv.Call("appendChild", recipeTime)
+	innerHtml := "<div class=\"recipe-list-item\" onClick=\"createRecipe('" + recipe.Uuid.String() + "');\">" +
+		"<h3>" + recipe.Name + "</h3>" +
+		"<p>Type: " + recipe.Type + "</p>" +
+		"<p>Time: " + recipe.Time + "</p>" +
+		"</div>"
+	li.Set("innerHTML", innerHtml)
 	return &li
+}
+
+func createRecipe(this js.Value, i []js.Value) interface{} {
+	println(i[0].String())
+	// println("test")
+	return nil
 }
