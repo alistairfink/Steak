@@ -6,6 +6,7 @@ import (
 	"github.com/google/uuid"
 	"io/ioutil"
 	"net/http"
+	"strings"
 	"syscall/js"
 )
 
@@ -57,7 +58,7 @@ type IngredientModel struct {
 
 const serverURL = "http://localhost:41690"
 
-var testData []RecipeModel
+var recipeModels []RecipeModel
 
 func main() {
 	c := make(chan struct{}, 0)
@@ -68,14 +69,32 @@ func main() {
 
 func registerCallbacks() {
 	js.Global().Set("search", js.FuncOf(search))
+	js.Global().Set("clearSearch", js.FuncOf(clearSearch))
 }
 
 func search(this js.Value, i []js.Value) interface{} {
-	list := js.Global().Get("document").Call("getElementById", "recipe-list")
-	li := js.Global().Get("document").Call("createElement", "li")
-	li.Set("innerHTML", "test")
-	list.Call("appendChild", li)
+	searchLogic()
 	return nil
+}
+
+func clearSearch(this js.Value, i []js.Value) interface{} {
+	js.Global().Get("document").Call("getElementById", "search").Set("value", "")
+	searchLogic()
+	return nil
+}
+
+func searchLogic() {
+	list := js.Global().Get("document").Call("getElementById", "recipe-list")
+	list.Set("innerHTML", "")
+	searchTerm := strings.ToLower(js.Global().Get("document").Call("getElementById", "search").Get("value").String())
+	for _, recipe := range recipeModels {
+		if strings.Contains(strings.ToLower(recipe.Name), searchTerm) ||
+			strings.Contains(strings.ToLower(recipe.Type), searchTerm) ||
+			strings.Contains(strings.ToLower(recipe.Time), searchTerm) {
+			htmlListRecipe := createRecipeListItem(&recipe)
+			list.Call("appendChild", *htmlListRecipe)
+		}
+	}
 }
 
 func startup() {
@@ -108,9 +127,28 @@ func startup() {
 		return
 	}
 
-	testData = recipes
+	for _, recipe := range recipes {
+		htmlListRecipe := createRecipeListItem(&recipe)
+		list.Call("appendChild", *htmlListRecipe)
+	}
+
+	recipeModels = recipes
 }
 
-func recipeListItem() {
-
+func createRecipeListItem(recipe *RecipeModel) *js.Value {
+	// Outter
+	li := js.Global().Get("document").Call("createElement", "li")
+	outerDiv := js.Global().Get("document").Call("createElement", "div")
+	outerDiv.Set("className", "recipe-list-item")
+	li.Call("appendChild", outerDiv)
+	title := js.Global().Get("document").Call("createElement", "h3")
+	title.Set("innerHTML", recipe.Name)
+	recipeType := js.Global().Get("document").Call("createElement", "p")
+	recipeType.Set("innerHTML", "Type: "+recipe.Type)
+	recipeTime := js.Global().Get("document").Call("createElement", "p")
+	recipeTime.Set("innerHTML", "Time: "+recipe.Time)
+	outerDiv.Call("appendChild", title)
+	outerDiv.Call("appendChild", recipeType)
+	outerDiv.Call("appendChild", recipeTime)
+	return &li
 }

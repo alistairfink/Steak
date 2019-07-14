@@ -3,8 +3,8 @@
 	<head>
 		<meta charset="utf-8" />
 		<title>Go wasm</title>
+		<link rel="stylesheet" href="index.css">
 		<script src="wasm_exec.js"></script>
-
 		<script>
 			if (!WebAssembly.instantiateStreaming) {
 				// polyfill
@@ -45,9 +45,9 @@
   	<h3>Built on web assembly!</h3>
 		<input type="text" id="search"  placeholder="Search">
 		<button id="search_button" onClick="search();">Search</button>
+		<button id="clear_button" onClick="clearSearch();">Clear</button>
 
-    <ul id="recipe-list">
-  		<li>Test</li>
+    <ul class="recipe-list" id="recipe-list">
     </ul>
   </body>
 </html>
