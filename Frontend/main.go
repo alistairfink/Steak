@@ -71,6 +71,7 @@ func registerCallbacks() {
 	js.Global().Set("search", js.FuncOf(search))
 	js.Global().Set("clearSearch", js.FuncOf(clearSearch))
 	js.Global().Set("createRecipe", js.FuncOf(createRecipe))
+	js.Global().Set("recipeBack", js.FuncOf(recipeBack))
 }
 
 func search(this js.Value, i []js.Value) interface{} {
@@ -149,7 +150,34 @@ func createRecipeListItem(recipe *RecipeModel) *js.Value {
 }
 
 func createRecipe(this js.Value, i []js.Value) interface{} {
-	println(i[0].String())
-	// println("test")
+	js.Global().Get("history").Call("pushState", nil, nil, "#"+i[0].String())
+	recipeUuid, err := uuid.Parse(i[0].String())
+	if err != nil {
+		fmt.Println(err.Error())
+		return nil
+	}
+
+	openRecipe(recipeUuid)
+	return nil
+}
+
+func openRecipe(recipeUuid uuid.UUID) {
+	outerDiv := js.Global().Get("document").Call("createElement", "div")
+	outerDiv.Set("className", "recipe-item")
+	outerDiv.Set("id", "recipe-item")
+	backButton := "<div class=\"recipe-item-back\" onClick=\"recipeBack();\">"
+	// outerDiv.Call("appendChild", backButton)
+	outerDiv.Set("innerHTML", backButton)
+	testDiv := js.Global().Get("document").Call("createElement", "p")
+	testDiv.Set("innerHTML", "test")
+	outerDiv.Call("appendChild", testDiv)
+
+	js.Global().Get("document").Get("body").Call("appendChild", outerDiv)
+}
+
+func recipeBack(this js.Value, i []js.Value) interface{} {
+	js.Global().Get("history").Call("pushState", nil, nil, " ")
+	recipeDiv := js.Global().Get("document").Call("getElementById", "recipe-item")
+	js.Global().Get("document").Get("body").Call("removeChild", recipeDiv.JSValue())
 	return nil
 }

@@ -6,3 +6,23 @@
 .recipe-list-item {
 	background-color: red;
 }
+
+.recipe-item {
+	position: absolute;
+	top: 0px;
+	left: 0px;
+	z-index: 998;
+	height: 100%;
+	width: 100%;
+	background-color: blue;
+}
+
+.recipe-item-back {
+	position: absolute;
+	top:50px;
+	left: 0px;
+	z-index: 999;
+	height: 100px;
+	width: 100px;
+	background-color: red;
+}
