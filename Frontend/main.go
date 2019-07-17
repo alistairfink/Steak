@@ -138,7 +138,6 @@ func startup() {
 }
 
 func createRecipeListItem(recipe *RecipeModel) *js.Value {
-	// Outter
 	li := js.Global().Get("document").Call("createElement", "li")
 	innerHtml := "<div class=\"recipe-list-item\" onClick=\"createRecipe('" + recipe.Uuid.String() + "');\">" +
 		"<h3>" + recipe.Name + "</h3>" +
@@ -166,7 +165,6 @@ func openRecipe(recipeUuid uuid.UUID) {
 	outerDiv.Set("className", "recipe-item")
 	outerDiv.Set("id", "recipe-item")
 	backButton := "<div class=\"recipe-item-back\" onClick=\"recipeBack();\">"
-	// outerDiv.Call("appendChild", backButton)
 	outerDiv.Set("innerHTML", backButton)
 	testDiv := js.Global().Get("document").Call("createElement", "p")
 	testDiv.Set("innerHTML", "test")

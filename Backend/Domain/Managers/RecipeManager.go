@@ -30,23 +30,23 @@ func (this *RecipeManger) Get(uuid uuid.UUID) *Models.RecipeDomainModel {
 		return nil
 	}
 
-	pictures := this.pictureCommand.GetByRecipeUuid(uuid)
-	ingredients := this.ingredientCommand.GetByRecipeUuid(uuid)
-	equipment := this.equipmentCommand.GetByRecipeUuid(uuid)
-	steps := this.stepCommand.GetByRecipeUuid(uuid)
+	pictures := append([]Models.PictureModel{}, *this.pictureCommand.GetByRecipeUuid(uuid)...)
+	ingredients := append([]Models.IngredientModel{}, *this.ingredientCommand.GetByRecipeUuid(uuid)...)
+	equipment := append([]Models.EquipmentModel{}, *this.equipmentCommand.GetByRecipeUuid(uuid)...)
+	steps := append([]Models.StepModel{}, *this.stepCommand.GetByRecipeUuid(uuid)...)
 
-	Sort.SortPicturesBySortOrder(pictures)
-	Sort.SortStepsByStepNumber(steps)
+	Sort.SortPicturesBySortOrder(&pictures)
+	Sort.SortStepsByStepNumber(&steps)
 
 	return &Models.RecipeDomainModel{
 		Uuid:        uuid,
 		Name:        recipeModel.Name,
 		Time:        recipeModel.Time,
 		Type:        recipeModel.Type,
-		Pictures:    pictures,
-		Equipments:  equipment,
-		Ingredients: ingredients,
-		Steps:       steps,
+		Pictures:    &pictures,
+		Equipments:  &equipment,
+		Ingredients: &ingredients,
+		Steps:       &steps,
 	}
 }
 
