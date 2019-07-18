@@ -102,6 +102,17 @@ func searchLogic() {
 }
 
 func startup() {
+	hash := js.Global().Get("window").Get("location").Get("hash")
+	if hash.String() != "" {
+		hashStr := hash.String()[1:]
+		recipeUuid, err := uuid.Parse(hashStr)
+		if err != nil {
+			js.Global().Get("history").Call("pushState", nil, nil, " ")
+		} else {
+			openRecipe(recipeUuid)
+		}
+	}
+
 	recipesModel = make(map[uuid.UUID]RecipeModel)
 	list := js.Global().Get("document").Call("getElementById", "recipe-list")
 	list.Set("innerHTML", "")
