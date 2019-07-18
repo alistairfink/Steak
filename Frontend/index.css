@@ -26,3 +26,7 @@
 	width: 100px;
 	background-color: red;
 }
+
+.recipe-item-inner {
+	padding: 10%;
+}
