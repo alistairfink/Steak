@@ -154,8 +154,7 @@ func createRecipeListItem(recipe *RecipesModel) *js.Value {
 	li := js.Global().Get("document").Call("createElement", "li")
 	innerHtml := "<div class=\"recipe-list-item\" onClick=\"createRecipe('" + recipe.Uuid.String() + "');\">" +
 		"<h3>" + recipe.Name + "</h3>" +
-		"<p>Type: " + recipe.Type + "</p>" +
-		"<p>Time: " + recipe.Time + "</p>" +
+		"<p>Type: " + recipe.Type + "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Time: " + recipe.Time + "</p>" +
 		"</div>"
 	li.Set("innerHTML", innerHtml)
 	return &li
@@ -177,7 +176,7 @@ func openRecipe(recipeUuid uuid.UUID) {
 	outerDiv := js.Global().Get("document").Call("createElement", "div")
 	outerDiv.Set("className", "recipe-item")
 	outerDiv.Set("id", "recipe-item")
-	backButton := "<div class=\"recipe-item-back\" onClick=\"recipeBack();\">"
+	backButton := "<div class=\"recipe-item-back\" onClick=\"recipeBack();\"><img src=\"Back.png\" title=\"Back\" alt=\"Back\"/></div>"
 	outerDiv.Set("innerHTML", backButton)
 	js.Global().Get("document").Get("body").Call("appendChild", outerDiv)
 
@@ -257,7 +256,7 @@ func openRecipe(recipeUuid uuid.UUID) {
 		// Steps
 		stepTitle := js.Global().Get("document").Call("createElement", "h3")
 		stepTitle.Set("innerHTML", "Steps:")
-		stepList := js.Global().Get("document").Call("createElement", "ul")
+		stepList := js.Global().Get("document").Call("createElement", "ol")
 		stepList.Set("className", "recipe-item-step")
 		for _, st := range *recipe.Steps {
 			step := js.Global().Get("document").Call("createElement", "li")
@@ -272,7 +271,7 @@ func openRecipe(recipeUuid uuid.UUID) {
 		images.Set("className", "recipe-item-image")
 		imgHtml := ""
 		for _, img := range *recipe.Pictures {
-			imgHtml += "<img src=\"" + img.ImageSource + "\" alt\"" + img.Uuid.String() + "\"/>"
+			imgHtml += "<img src=\"" + img.ImageSource + "\" alt=\"" + img.Uuid.String() + "\" class=\"recipe-image\"/>"
 		}
 		images.Set("innerHTML", imgHtml)
 		innerDiv.Call("appendChild", images)
