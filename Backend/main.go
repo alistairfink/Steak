@@ -8,6 +8,7 @@ import (
 	"github.com/alistairfink/Steak/Backend/Utilities"
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
+	"github.com/go-chi/cors"
 	"github.com/go-chi/render"
 	"github.com/go-pg/pg"
 	"log"
@@ -52,6 +53,16 @@ func main() {
 
 func Routes(db *pg.DB, config *Utilities.Config) *chi.Mux {
 	router := chi.NewRouter()
+	cors := cors.New(cors.Options{
+		// AllowedOrigins: []string{"https://foo.com"}, // Use this to allow specific origin hosts
+		AllowedOrigins: []string{"*"},
+		// AllowOriginFunc:  func(r *http.Request, origin string) bool { return true },
+		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+		AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type", "X-CSRF-Token"},
+		ExposedHeaders:   []string{"Link"},
+		AllowCredentials: true,
+		MaxAge:           300, // Maximum value not ignored by any of major browsers
+	})
 	router.Use(
 		render.SetContentType(render.ContentTypeJSON),
 		middleware.Logger,
@@ -59,6 +70,7 @@ func Routes(db *pg.DB, config *Utilities.Config) *chi.Mux {
 		middleware.RedirectSlashes,
 		middleware.Recoverer,
 		Middleware.CorsMiddleware,
+		cors.Handler,
 	)
 
 	// Controllers

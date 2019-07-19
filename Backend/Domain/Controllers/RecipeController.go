@@ -129,7 +129,9 @@ func (this *RecipeController) Create(w http.ResponseWriter, r *http.Request) {
 }
 
 func (this *RecipeController) Delete(w http.ResponseWriter, r *http.Request) {
+	println("test")
 	apiKey := r.Header.Get("APIKey")
+	println(apiKey)
 	if apiKey == this.config.ApiKey {
 		uuidUnparsed := chi.URLParam(r, "recipe_uuid")
 		uuid, err := uuid.Parse(uuidUnparsed)

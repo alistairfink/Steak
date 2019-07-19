@@ -61,6 +61,7 @@ const serverURL = "http://localhost:41690"
 
 var recipesModels []RecipesModel
 var recipesModel map[uuid.UUID]RecipeModel
+var ApiKey string
 
 func main() {
 	c := make(chan struct{}, 0)
@@ -74,6 +75,8 @@ func registerCallbacks() {
 	js.Global().Set("clearSearch", js.FuncOf(clearSearch))
 	js.Global().Set("createRecipe", js.FuncOf(createRecipe))
 	js.Global().Set("recipeBack", js.FuncOf(recipeBack))
+	js.Global().Set("setApiKey", js.FuncOf(setApiKey))
+	js.Global().Set("deleteRecipe", js.FuncOf(deleteRecipe))
 }
 
 func search(this js.Value, i []js.Value) interface{} {
@@ -102,17 +105,6 @@ func searchLogic() {
 }
 
 func startup() {
-	hash := js.Global().Get("window").Get("location").Get("hash")
-	if hash.String() != "" {
-		hashStr := hash.String()[1:]
-		recipeUuid, err := uuid.Parse(hashStr)
-		if err != nil {
-			js.Global().Get("history").Call("pushState", nil, nil, " ")
-		} else {
-			openRecipe(recipeUuid)
-		}
-	}
-
 	recipesModel = make(map[uuid.UUID]RecipeModel)
 	list := js.Global().Get("document").Call("getElementById", "recipe-list")
 	list.Set("innerHTML", "")
@@ -148,6 +140,19 @@ func startup() {
 	}
 
 	recipesModels = recipes
+
+	hash := js.Global().Get("window").Get("location").Get("hash")
+	if hash.String() == "#admin" {
+		openAdmin()
+	} else if hash.String() != "" {
+		hashStr := hash.String()[1:]
+		recipeUuid, err := uuid.Parse(hashStr)
+		if err != nil {
+			js.Global().Get("history").Call("pushState", nil, nil, " ")
+		} else {
+			openRecipe(recipeUuid)
+		}
+	}
 }
 
 func createRecipeListItem(recipe *RecipesModel) *js.Value {
@@ -284,5 +289,52 @@ func recipeBack(this js.Value, i []js.Value) interface{} {
 	js.Global().Get("history").Call("pushState", nil, nil, " ")
 	recipeDiv := js.Global().Get("document").Call("getElementById", "recipe-item")
 	js.Global().Get("document").Get("body").Call("removeChild", recipeDiv.JSValue())
+	return nil
+}
+
+func openAdmin() {
+	outerDiv := js.Global().Get("document").Call("createElement", "div")
+	outerDiv.Set("className", "admin")
+	js.Global().Get("document").Get("body").Call("appendChild", outerDiv)
+	title := js.Global().Get("document").Call("createElement", "h1")
+	title.Set("innerHTML", "Admin")
+	outerDiv.Call("appendChild", title)
+
+	apiKeyOuter := js.Global().Get("document").Call("createElement", "div")
+	apiKeyOuter.Set("innerHTML", "<input type=\"text\" id=\"apiKey\" placeholder=\"Api Key\">"+
+		"<button id=\"apiKey_set\" onClick=\"setApiKey();\">Set ApiKey</button>")
+	outerDiv.Call("appendChild", apiKeyOuter)
+
+	for _, rec := range recipesModels {
+		elementOuter := js.Global().Get("document").Call("createElement", "div")
+		elementOuter.Set("className", "admin-element-outer")
+		elementOuter.Set("innerHTML",
+			"<p>"+rec.Uuid.String()+"&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</p>"+
+				"<p>"+rec.Name+"</p>"+
+				"<button id=\""+rec.Uuid.String()+"_edit\" onClick=\"\">Edit</button>"+
+				"<button id=\""+rec.Uuid.String()+"_delete\" onClick=\"deleteRecipe('"+rec.Uuid.String()+"');\">Delete</button>")
+		outerDiv.Call("appendChild", elementOuter)
+	}
+}
+
+func setApiKey(this js.Value, i []js.Value) interface{} {
+	apiKey := js.Global().Get("document").Call("getElementById", "apiKey")
+	ApiKey = apiKey.Get("value").String()
+	return nil
+}
+
+func deleteRecipe(this js.Value, i []js.Value) interface{} {
+	recipeUuid, err := uuid.Parse(i[0].String())
+	if err != nil {
+		println(err.Error())
+		return nil
+	}
+
+	go func() {
+		req, _ := http.NewRequest("DELETE", serverURL+"/recipe"+"/"+recipeUuid.String(), nil)
+		req.Header.Set("APIKey", ApiKey)
+		http.DefaultClient.Do(req)
+	}()
+
 	return nil
 }

@@ -62,7 +62,10 @@ body > h3 {
 	background: red;
 	border: 0px;
 	padding: 5px;
-    background: rgba(220, 220, 220, 0.5) 
+	padding-left: 20px;
+    background: rgba(220, 220, 220, 0.5);
+    border-top-left-radius: 5px;
+    border-bottom-left-radius: 5px;
 }
 
 #clear_button {
@@ -78,6 +81,8 @@ body > h3 {
     padding: 0px;
     padding-right: 20px;
     padding-left: 20px;
+    border-top-right-radius: 5px;
+    border-bottom-right-radius: 5px;
 
 }
 
@@ -172,4 +177,39 @@ body > h3 {
 	border-radius: 5px;
 	width: 50vw;
 	margin-bottom: 20px;
+}
+
+.admin {
+	background: linear-gradient(to right, #77C9D4, #57BC90) fixed;
+	position: absolute;
+	z-index: 999;
+	top: 0;
+	left: 0;
+	height: 100%;
+	width: 96%;
+	padding-left: 2%;
+	padding-right: 2%;
+	overflow-y: auto;
+}
+
+.admin > h1 {
+	font-size: 5rem;
+	padding: 0px;
+	margin-bottom: 10px;
+}
+
+.admin-element-outer {
+	display: flex;
+	flex-direction: row;
+	margin: 0px;
+	margin-top: 20px;
+	padding-bottom: 20px;
+	border-color: black;
+	border-width: 1px;
+	border-bottom-style: solid;
+}
+
+.admin-element-outer > button {
+	margin-left: 50px;
+	border-radius: 5px;
 }
