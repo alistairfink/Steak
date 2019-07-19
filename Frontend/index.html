@@ -43,9 +43,11 @@
   	<h1>STEAK</h1>
   	<h2>A place to store my recipes.</h2>
   	<h3>Built on web assembly!</h3>
-		<input type="text" id="search"  placeholder="Search">
-		<button id="search_button" onClick="search();">Search</button>
-		<button id="clear_button" onClick="clearSearch();">Clear</button>
+  	<div class="recipe-search">
+			<input type="text" id="search"  placeholder="Search">
+			<button id="clear_button" onClick="clearSearch();">X</button>
+			<button id="search_button" onClick="search();">Search</button>
+		</div>
 
     <ul class="recipe-list" id="recipe-list">
     </ul>
