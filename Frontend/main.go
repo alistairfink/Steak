@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"github.com/google/uuid"
 	"io/ioutil"
 	"net/http"
 	"strconv"
@@ -13,14 +12,14 @@ import (
 )
 
 type RecipesModel struct {
-	Uuid uuid.UUID
+	Uuid string
 	Name string
 	Time string
 	Type string
 }
 
 type RecipeModel struct {
-	Uuid        uuid.UUID
+	Uuid        string
 	Name        string
 	Time        string
 	Type        string
@@ -31,37 +30,37 @@ type RecipeModel struct {
 }
 
 type PictureModel struct {
-	Uuid        uuid.UUID
-	RecipeUuid  uuid.UUID
+	Uuid        string
+	RecipeUuid  string
 	ImageSource string
 	SortOrder   int
 }
 
 type StepModel struct {
-	Uuid       uuid.UUID
-	RecipeUuid uuid.UUID
+	Uuid       string
+	RecipeUuid string
 	Content    string
 	StepNumber int
 }
 
 type EquipmentModel struct {
-	Uuid       uuid.UUID
-	RecipeUuid uuid.UUID
+	Uuid       string
+	RecipeUuid string
 	Name       string
 	Quantity   int
 }
 
 type IngredientModel struct {
-	Uuid       uuid.UUID
-	RecipeUuid uuid.UUID
+	Uuid       string
+	RecipeUuid string
 	Name       string
 	Quantity   int
 }
 
-const serverURL = "http://localhost:41690"
+const serverURL = "https://alistairfink.com/steak-api"
 
 var recipesModels []RecipesModel
-var recipesModel map[uuid.UUID]RecipeModel
+var recipesModel map[string]RecipeModel
 var ApiKey string
 
 func main() {
@@ -111,7 +110,7 @@ func searchLogic() {
 }
 
 func startup() {
-	recipesModel = make(map[uuid.UUID]RecipeModel)
+	recipesModel = make(map[string]RecipeModel)
 	list := js.Global().Get("document").Call("getElementById", "recipe-list")
 	list.Set("innerHTML", "")
 	req, err := http.NewRequest("GET", serverURL+"/recipe", nil)
@@ -152,18 +151,14 @@ func startup() {
 		openAdmin()
 	} else if hash.String() != "" {
 		hashStr := hash.String()[1:]
-		recipeUuid, err := uuid.Parse(hashStr)
-		if err != nil {
-			js.Global().Get("history").Call("pushState", nil, nil, " ")
-		} else {
-			openRecipe(recipeUuid)
-		}
+		recipeUuid := hashStr
+		openRecipe(recipeUuid)
 	}
 }
 
 func createRecipeListItem(recipe *RecipesModel) *js.Value {
 	li := js.Global().Get("document").Call("createElement", "li")
-	innerHtml := "<div class=\"recipe-list-item\" onClick=\"createRecipe('" + recipe.Uuid.String() + "');\">" +
+	innerHtml := "<div class=\"recipe-list-item\" onClick=\"createRecipe('" + recipe.Uuid + "');\">" +
 		"<h3>" + recipe.Name + "</h3>" +
 		"<p>Type: " + recipe.Type + "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Time: " + recipe.Time + "</p>" +
 		"</div>"
@@ -173,17 +168,13 @@ func createRecipeListItem(recipe *RecipesModel) *js.Value {
 
 func createRecipe(this js.Value, i []js.Value) interface{} {
 	js.Global().Get("history").Call("pushState", nil, nil, "#"+i[0].String())
-	recipeUuid, err := uuid.Parse(i[0].String())
-	if err != nil {
-		fmt.Println(err.Error())
-		return nil
-	}
+	recipeUuid := i[0].String()
 
 	openRecipe(recipeUuid)
 	return nil
 }
 
-func openRecipe(recipeUuid uuid.UUID) {
+func openRecipe(recipeUuid string) {
 	outerDiv := js.Global().Get("document").Call("createElement", "div")
 	outerDiv.Set("className", "recipe-item")
 	outerDiv.Set("id", "recipe-item")
@@ -198,7 +189,7 @@ func openRecipe(recipeUuid uuid.UUID) {
 		if _, model := recipesModel[recipeUuid]; model {
 			recipe = recipesModel[recipeUuid]
 		} else {
-			req, err := http.NewRequest("GET", serverURL+"/recipe"+"/"+recipeUuid.String(), nil)
+			req, err := http.NewRequest("GET", serverURL+"/recipe"+"/"+recipeUuid, nil)
 			if err != nil {
 				fmt.Println(err.Error())
 				return
@@ -282,7 +273,7 @@ func openRecipe(recipeUuid uuid.UUID) {
 		images.Set("className", "recipe-item-image")
 		imgHtml := ""
 		for _, img := range *recipe.Pictures {
-			imgHtml += "<img src=\"" + img.ImageSource + "\" alt=\"" + img.Uuid.String() + "\" class=\"recipe-image\"/>"
+			imgHtml += "<img src=\"" + img.ImageSource + "\" alt=\"" + img.Uuid + "\" class=\"recipe-image\"/>"
 		}
 		images.Set("innerHTML", imgHtml)
 		innerDiv.Call("appendChild", images)
@@ -316,10 +307,10 @@ func openAdmin() {
 		elementOuter := js.Global().Get("document").Call("createElement", "div")
 		elementOuter.Set("className", "admin-element-outer")
 		elementOuter.Set("innerHTML",
-			"<p>"+rec.Uuid.String()+"&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</p>"+
+			"<p>"+rec.Uuid+"&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</p>"+
 				"<p>"+rec.Name+"</p>"+
-				"<button id=\""+rec.Uuid.String()+"_edit\" onClick=\"openEdit('"+rec.Uuid.String()+"')\">Edit</button>"+
-				"<button id=\""+rec.Uuid.String()+"_delete\" onClick=\"deleteRecipe('"+rec.Uuid.String()+"');\">Delete</button>")
+				"<button id=\""+rec.Uuid+"_edit\" onClick=\"openEdit('"+rec.Uuid+"')\">Edit</button>"+
+				"<button id=\""+rec.Uuid+"_delete\" onClick=\"deleteRecipe('"+rec.Uuid+"');\">Delete</button>")
 		outerDiv.Call("appendChild", elementOuter)
 	}
 }
@@ -332,14 +323,10 @@ func setApiKey(this js.Value, i []js.Value) interface{} {
 }
 
 func deleteRecipe(this js.Value, i []js.Value) interface{} {
-	recipeUuid, err := uuid.Parse(i[0].String())
-	if err != nil {
-		println(err.Error())
-		return nil
-	}
+	recipeUuid := i[0].String()
 
 	go func() {
-		req, _ := http.NewRequest("DELETE", serverURL+"/recipe"+"/"+recipeUuid.String(), nil)
+		req, _ := http.NewRequest("DELETE", serverURL+"/recipe"+"/"+recipeUuid, nil)
 		req.Header.Set("APIKey", ApiKey)
 		http.DefaultClient.Do(req)
 		js.Global().Get("location").Call("reload")
@@ -349,7 +336,7 @@ func deleteRecipe(this js.Value, i []js.Value) interface{} {
 }
 
 func openEdit(this js.Value, i []js.Value) interface{} {
-	recipeUuid, _ := uuid.Parse(i[0].String())
+	recipeUuid := i[0].String()
 	outerDiv := js.Global().Get("document").Call("createElement", "div")
 	outerDiv.Set("id", "admin-edit")
 	outerDiv.Set("className", "admin")
@@ -373,7 +360,7 @@ func openEdit(this js.Value, i []js.Value) interface{} {
 		if _, model := recipesModel[recipeUuid]; model {
 			recipe = recipesModel[recipeUuid]
 		} else {
-			req, err := http.NewRequest("GET", serverURL+"/recipe"+"/"+recipeUuid.String(), nil)
+			req, err := http.NewRequest("GET", serverURL+"/recipe"+"/"+recipeUuid, nil)
 			if err != nil {
 				fmt.Println(err.Error())
 				return
