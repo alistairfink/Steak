@@ -79,13 +79,13 @@ func registerCallbacks() {
 	js.Global().Set("deleteRecipe", js.FuncOf(deleteRecipe))
 }
 
-func search(this js.Value, i []js.Value) interface{} {
+func clearSearch(this js.Value, i []js.Value) interface{} {
+	js.Global().Get("document").Call("getElementById", "search").Set("value", "")
 	searchLogic()
 	return nil
 }
 
-func clearSearch(this js.Value, i []js.Value) interface{} {
-	js.Global().Get("document").Call("getElementById", "search").Set("value", "")
+func search(this js.Value, i []js.Value) interface{} {
 	searchLogic()
 	return nil
 }
