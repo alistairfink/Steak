@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"github.com/google/uuid"
@@ -77,6 +78,11 @@ func registerCallbacks() {
 	js.Global().Set("recipeBack", js.FuncOf(recipeBack))
 	js.Global().Set("setApiKey", js.FuncOf(setApiKey))
 	js.Global().Set("deleteRecipe", js.FuncOf(deleteRecipe))
+	js.Global().Set("openEdit", js.FuncOf(openEdit))
+	js.Global().Set("sendEdit", js.FuncOf(sendEdit))
+	js.Global().Set("editBack", js.FuncOf(editBack))
+	js.Global().Set("openAdd", js.FuncOf(openAdd))
+	js.Global().Set("sendNew", js.FuncOf(sendNew))
 }
 
 func clearSearch(this js.Value, i []js.Value) interface{} {
@@ -302,7 +308,8 @@ func openAdmin() {
 
 	apiKeyOuter := js.Global().Get("document").Call("createElement", "div")
 	apiKeyOuter.Set("innerHTML", "<input type=\"text\" id=\"apiKey\" placeholder=\"Api Key\">"+
-		"<button id=\"apiKey_set\" onClick=\"setApiKey();\">Set ApiKey</button>")
+		"<button id=\"apiKey_set\" onClick=\"setApiKey('apiKey');\">Set ApiKey</button>"+
+		"<button id=\"add\" onClick=\"openAdd();\">Add</button>")
 	outerDiv.Call("appendChild", apiKeyOuter)
 
 	for _, rec := range recipesModels {
@@ -311,14 +318,15 @@ func openAdmin() {
 		elementOuter.Set("innerHTML",
 			"<p>"+rec.Uuid.String()+"&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</p>"+
 				"<p>"+rec.Name+"</p>"+
-				"<button id=\""+rec.Uuid.String()+"_edit\" onClick=\"\">Edit</button>"+
+				"<button id=\""+rec.Uuid.String()+"_edit\" onClick=\"openEdit('"+rec.Uuid.String()+"')\">Edit</button>"+
 				"<button id=\""+rec.Uuid.String()+"_delete\" onClick=\"deleteRecipe('"+rec.Uuid.String()+"');\">Delete</button>")
 		outerDiv.Call("appendChild", elementOuter)
 	}
 }
 
 func setApiKey(this js.Value, i []js.Value) interface{} {
-	apiKey := js.Global().Get("document").Call("getElementById", "apiKey")
+	apiKeyId := i[0].String()
+	apiKey := js.Global().Get("document").Call("getElementById", apiKeyId)
 	ApiKey = apiKey.Get("value").String()
 	return nil
 }
@@ -334,6 +342,167 @@ func deleteRecipe(this js.Value, i []js.Value) interface{} {
 		req, _ := http.NewRequest("DELETE", serverURL+"/recipe"+"/"+recipeUuid.String(), nil)
 		req.Header.Set("APIKey", ApiKey)
 		http.DefaultClient.Do(req)
+		js.Global().Get("location").Call("reload")
+	}()
+
+	return nil
+}
+
+func openEdit(this js.Value, i []js.Value) interface{} {
+	recipeUuid, _ := uuid.Parse(i[0].String())
+	outerDiv := js.Global().Get("document").Call("createElement", "div")
+	outerDiv.Set("id", "admin-edit")
+	outerDiv.Set("className", "admin")
+	backButton := "<div class=\"recipe-item-back\" onClick=\"editBack();\"><img src=\"Back.png\" title=\"Back\" alt=\"Back\"/></div>"
+	outerDiv.Set("innerHTML", backButton)
+	js.Global().Get("document").Get("body").Call("appendChild", outerDiv)
+	title := js.Global().Get("document").Call("createElement", "h1")
+	title.Set("innerHTML", "Edit")
+	outerDiv.Call("appendChild", title)
+
+	apiKeyOuter := js.Global().Get("document").Call("createElement", "div")
+	apiKeyOuter.Set("innerHTML", "<input type=\"text\" id=\"apiKey_edit\" placeholder=\"Api Key\">"+
+		"<button id=\"apiKey_set\" onClick=\"setApiKey('apiKey_edit');\">Set ApiKey</button>"+
+		"<button id=\"apiKey_set\" onClick=\"sendEdit();\">Send</button>")
+	outerDiv.Call("appendChild", apiKeyOuter)
+
+	go func() {
+
+		var recipe RecipeModel
+
+		if _, model := recipesModel[recipeUuid]; model {
+			recipe = recipesModel[recipeUuid]
+		} else {
+			req, err := http.NewRequest("GET", serverURL+"/recipe"+"/"+recipeUuid.String(), nil)
+			if err != nil {
+				fmt.Println(err.Error())
+				return
+			}
+
+			response, err := http.DefaultClient.Do(req)
+			defer response.Body.Close()
+			if err != nil {
+				fmt.Println(err.Error())
+				return
+			}
+
+			body, err := ioutil.ReadAll(response.Body)
+			if err != nil {
+				fmt.Println(err.Error())
+				return
+			}
+
+			err = json.Unmarshal(body, &recipe)
+			if err != nil {
+				fmt.Println(err.Error())
+				return
+			}
+
+			recipesModel[recipeUuid] = recipe
+		}
+
+		json, _ := json.MarshalIndent(recipe, "", "    ")
+		textArea := js.Global().Get("document").Call("createElement", "textarea")
+		textArea.Get("value")
+		textArea.Set("id", "edit_json")
+		textArea.Set("name", "edit_json")
+		textArea.Set("className", "json-editor")
+
+		outerDiv.Call("appendChild", textArea)
+
+		js.Global().Get("document").Call("getElementById", "edit_json").Set("value", string(json))
+	}()
+
+	return nil
+}
+
+func sendEdit(this js.Value, i []js.Value) interface{} {
+	editRecipeJson := js.Global().Get("document").Call("getElementById", "edit_json").Get("value")
+	go func() {
+		req, _ := http.NewRequest("PUT", serverURL+"/recipe", bytes.NewBuffer([]byte(editRecipeJson.String())))
+		req.Header.Set("APIKey", ApiKey)
+		req.Header.Set("Content-Type", "application/json")
+		http.DefaultClient.Do(req)
+		js.Global().Get("location").Call("reload")
+	}()
+
+	return nil
+}
+
+func editBack(this js.Value, i []js.Value) interface{} {
+	recipeDiv := js.Global().Get("document").Call("getElementById", "admin-edit")
+	js.Global().Get("document").Get("body").Call("removeChild", recipeDiv.JSValue())
+	return nil
+}
+
+func openAdd(this js.Value, i []js.Value) interface{} {
+	outerDiv := js.Global().Get("document").Call("createElement", "div")
+	outerDiv.Set("id", "admin-edit")
+	outerDiv.Set("className", "admin")
+	backButton := "<div class=\"recipe-item-back\" onClick=\"editBack();\"><img src=\"Back.png\" title=\"Back\" alt=\"Back\"/></div>"
+	outerDiv.Set("innerHTML", backButton)
+	js.Global().Get("document").Get("body").Call("appendChild", outerDiv)
+	title := js.Global().Get("document").Call("createElement", "h1")
+	title.Set("innerHTML", "New")
+	outerDiv.Call("appendChild", title)
+
+	apiKeyOuter := js.Global().Get("document").Call("createElement", "div")
+	apiKeyOuter.Set("innerHTML", "<input type=\"text\" id=\"apiKey_edit\" placeholder=\"Api Key\">"+
+		"<button id=\"apiKey_set\" onClick=\"setApiKey('apiKey_edit');\">Set ApiKey</button>"+
+		"<button id=\"apiKey_set\" onClick=\"sendNew();\">Send</button>")
+	outerDiv.Call("appendChild", apiKeyOuter)
+
+	textArea := js.Global().Get("document").Call("createElement", "textarea")
+	textArea.Get("value")
+	textArea.Set("id", "edit_json")
+	textArea.Set("name", "edit_json")
+	textArea.Set("className", "json-editor")
+
+	outerDiv.Call("appendChild", textArea)
+	json :=
+		"{\n" +
+			"\t\"Name\": \"\",\n" +
+			"\t\"Time\": \"\",\n" +
+			"\t\"Type\": \"\",\n" +
+			"\t\"Pictures\": [\n" +
+			"\t\t{\n" +
+			"\t\t\t\"ImageSource\": \"\",\n" +
+			"\t\t\t\"SortOrder\": \n" +
+			"\t\t}\n" +
+			"\t],\n" +
+			"\t\"Equipments\": [\n" +
+			"\t\t{\n" +
+			"\t\t\t\"Name\": \"\",\n" +
+			"\t\t\t\"Quantity\": \n" +
+			"\t\t}\n" +
+			"\t],\n" +
+			"\t\"Ingredients\": [\n" +
+			"\t\t{\n" +
+			"\t\t\t\"Name\": \"\",\n" +
+			"\t\t\t\"Quantity\": \n" +
+			"\t\t}\n" +
+			"\t],\n" +
+			"\t\"Steps\": [\n" +
+			"\t\t{\n" +
+			"\t\t\t\"Content\": \"\",\n" +
+			"\t\t\t\"StepNumber\": \n" +
+			"\t\t}\n" +
+			"\t]\n" +
+			"}\n"
+
+	js.Global().Get("document").Call("getElementById", "edit_json").Set("value", string(json))
+
+	return nil
+}
+
+func sendNew(this js.Value, i []js.Value) interface{} {
+	newRecipeJson := js.Global().Get("document").Call("getElementById", "edit_json").Get("value")
+	go func() {
+		req, _ := http.NewRequest("POST", serverURL+"/recipe", bytes.NewBuffer([]byte(newRecipeJson.String())))
+		req.Header.Set("APIKey", ApiKey)
+		req.Header.Set("Content-Type", "application/json")
+		http.DefaultClient.Do(req)
+		js.Global().Get("location").Call("reload")
 	}()
 
 	return nil
