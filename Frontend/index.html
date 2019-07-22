@@ -46,11 +46,14 @@
   	<h2>A place to store my recipes.</h2>
   	<h3>Built on web assembly! Which also means the first load is slow :(</h3>
   	<div class="recipe-search">
-		<input type="text" id="search" placeholder="Search" onKeyUp="search();">
-		<button id="clear_button" onClick="clearSearch();">X</button>
-		<button id="search_button" onClick="search();">Search</button>
-	</div>
-
+			<input type="text" id="search" placeholder="Search" onKeyUp="search();">
+			<button id="clear_button" onClick="clearSearch();">X</button>
+			<button id="search_button" onClick="search();">Search</button>
+		</div>
+		<div id="loading" class="loading">
+			<img src="./loading.svg"/>
+			<h2>Loading...</h2>
+		</div>
     <ul class="recipe-list" id="recipe-list">
     </ul>
   </body>

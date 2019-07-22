@@ -139,6 +139,9 @@ func startup() {
 		return
 	}
 
+	recipeDiv := js.Global().Get("document").Call("getElementById", "loading")
+	js.Global().Get("document").Get("body").Call("removeChild", recipeDiv.JSValue())
+
 	for _, recipe := range recipes {
 		htmlListRecipe := createRecipeListItem(&recipe)
 		list.Call("appendChild", *htmlListRecipe)
