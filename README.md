@@ -7,20 +7,20 @@ Website: https://alistairfink.com/steak
 Backend - Build Docker Image (Actual Repo is Private) 
 
 Run the following from the project root.
-```
-# docker build -t alistairfink/side_projects:steak_backend .
-# docker build -t alistairfink/side_projects:steak_db -f ./Backend/DB-Dockerfile .
-# docker-compose up -d
+```bash
+$ docker build -t alistairfink/side_projects:steak_backend .
+$ docker build -t alistairfink/side_projects:steak_db -f ./Backend/DB-Dockerfile .
+$ docker-compose up -d
 ```
 The db should now be available on port 5430 and the backend on 41690.
 
 Frontend - Serve using any web server.
 
 Example using serve from the root of the repo.
-```
-# cd ./Frontend
-# GOOS=js GOARCH=wasm go build -o main.wasm -ldflags="-s -w"
-# serve -s . 
+```bash
+$ cd ./Frontend
+$ GOOS=js GOARCH=wasm go build -o main.wasm -ldflags="-s -w"
+$ serve -s . 
 ```
 
 If using serve this will most likely bind to port 5000 and the front end should be available at localhost:5000. The "serverURL" in the frontend's main.go will need to be changed to point at localhost:41690. (Please don't spam my server). 
