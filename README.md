@@ -31,4 +31,4 @@ If using serve this will most likely bind to port 5000 and the front end should 
 - Web assembilies are kinda big. The one compiled in this project is ~8mb. I have attempted to compress this but mostly being self taught in devops I have no idea how I would go about serving zipped files. This will be fixed as soon as I stop being retarded.
 
 ## Why is this Called Steak?
-This is an app about food. As a result when I was trying to think of a good name for this all I could think about was food. Steak is my favourite food and I couldn't think of anything else so I though why not?
+This is an app about food. As a result when I was trying to think of a good name for this all I could think about was food. Steak is my favourite food and I couldn't think of anything else so I thought why not?
