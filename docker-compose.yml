@@ -1,5 +1,3 @@
-version: '3.2'
-
 services:
   db:
     image: gitea.app.alistairfink.com/alistairfink/steak-db

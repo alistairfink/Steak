@@ -1,6 +1,6 @@
 {
 	"Port": "41692",
-	"ApiKey": "d49840ad-c9e1-4e80-9706-daa90b84a91b",
+	"ApiKey": "admin-key",
 	"DB": {
 		"Address": "172.23.1.2",
 		"Port": "5432",
