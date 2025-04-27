@@ -1,0 +1,28 @@
+version: '3.2'
+
+services:
+  db:
+    image: gitea.app.alistairfink.com/alistairfink/steak-db
+    restart: always
+    ports:
+      - "5430:5432"
+    networks:
+      steak-network:
+        ipv4_address: 172.23.1.2
+    environment:
+      POSTGRES_PASSWORD: docker
+  service:
+    image: gitea.app.alistairfink.com/alistairfink/steak
+    restart: always
+    ports:
+      - "41690:41692"
+      - "5000:5000"
+    networks:
+      - steak-network
+
+networks:
+  steak-network:
+    ipam:
+      driver: default
+      config:
+        - subnet: 172.23.0.0/16

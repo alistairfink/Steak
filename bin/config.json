@@ -1,0 +1,11 @@
+{
+	"Port": "41692",
+	"ApiKey": "d49840ad-c9e1-4e80-9706-daa90b84a91b",
+	"DB": {
+		"Address": "172.23.1.2",
+		"Port": "5432",
+		"DBName": "postgres",
+		"Username": "postgres",
+		"Password": "docker"
+	}
+}

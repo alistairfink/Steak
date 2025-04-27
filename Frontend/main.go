@@ -57,7 +57,7 @@ type IngredientModel struct {
 	Quantity   int
 }
 
-const serverURL = "https://alistairfink.com/steak-api"
+const serverURL = "http://localhost:41690"
 
 var recipesModels []RecipesModel
 var recipesModel map[string]RecipeModel
