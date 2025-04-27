@@ -1,7 +1,7 @@
 # Steak
 A repository for recipes. This project was started mainly for two reasons. The first being that I was getting into cooking and needed a place to store my recipes and I wasn't about to start carrying around a notebook. The second was that I wanted to try web assemblies.
 
-Website: https://alistairfink.com/steak
+Website: https://steak.app.alistairfink.com
 
 ## Build
 Backend - Build Docker Image (Actual Docker Repo is Private) 
@@ -24,6 +24,15 @@ $ serve -s .
 ```
 
 If using serve this will most likely bind to port 5000 and the front end should be available at localhost:5000. The "serverURL" in the frontend's main.go will need to be changed to point at localhost:41690. (Please don't spam my server). 
+
+### Update 2025/04/27
+After trying to rebuild this so that I can migrate it to a different server I find that the backend is impossible to build
+since I do not know the version of each dependency at the time of development (technically not impossible but I have neither
+the time or desire to fix it). It seems that I neglected to use a `go.mod` file for this project and thus am unable to 
+rebuild the backend binary. Luckily I've been able to extract the binary and configfile from the previous image and have 
+left them in the `/bin` directory. The frontend is still buildable using the docker image at the root of this repository 
+which now serves the backend and frontend in a single container. The entire stack can be deployed using the 
+`docker-compose.yaml` file in the root of the repository.
 
 ## What I Learned From This
 - Web assembilies are kinda trash right now. If you're mostly doing dom manipulation like I was doing in this project them your code will very closely resemble jquery (or at least it did to me). This will most likely be fixed as more frameworks come out. 
